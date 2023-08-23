@@ -20,7 +20,7 @@ Os serviços estarão expostos nas seguintes portas:
 - **mysql** - `:3306`
 - **php** - `:9000`
 
-Estaram disponiveis 3 containers para gerenciar o Composer, o NPM e o Artisan sem a necessidade destes estarem instalados na sua máquina. Use os comandos a seguir como exemplo adequando-os à sua necessidade:
+Estaram disponíveis 3 containers para gerenciar o Composer, o NPM e o Artisan sem a necessidade destes estarem instalados na sua máquina. Use os comandos a seguir como exemplo adequando-os à sua necessidade:
 
 ```sh
 docker-compose run --rm composer update # Gerenciador do composer
@@ -29,7 +29,7 @@ docker-compose run --rm artisan migrate # Gerenciador do artisan
 ```
 ## Configuração de desenvolvimento
 
-Com a aplicação e pé após rodar rodar o *docker build + up*, atualize os pacotes do *composer* para garantir que todos estão instalados corretamente e, em seguida, execute o *artisan migrate*:
+Com a aplicação de pé após rodar o *docker build + up*, atualize os pacotes do *composer* para garantir que todos estão instalados corretamente e, em seguida, execute o *artisan migrate*:
 
 ```sh
 docker-compose run --rm composer update # Atualize os pacotes
