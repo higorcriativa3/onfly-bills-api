@@ -1,0 +1,358 @@
+openapi: 3.0.1
+info:
+  title: Onfly Bills
+  description: |
+    <p>API gerenciador de despesas Onfly.</p>
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:80/api'
+tags:
+  - name: users
+    description: Usuários do sistema.
+  - name: bills
+    description: Despesas dos usuários.
+paths:
+  /auth/register:
+    post:
+      summary: Criar um usuário.
+      description: |
+        Crie um usuário para se autenticar na aplicação.
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json; charset=utf-8:
+            schema:
+                $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          $ref: "#/components/responses/201CreatedUser"
+        '422':
+          $ref: "#/components/responses/422ValidationError"
+  /auth/login:
+    post:
+      summary: Logar um usuário.
+      description: |
+        Autenticar usuário na aplicação.
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json; charset=utf-8:
+            schema:
+                $ref: '#/components/schemas/LoginUser'
+      responses:
+        '201':
+          $ref: "#/components/responses/200Logged"
+        '401':
+          description: "Unauthorized"
+  /bills:
+    post:
+      summary: Criar uma despesa.
+      description: |
+        Crie uma despesa do usuário.
+      tags:
+        - bills
+      requestBody:
+        required: true
+        content:
+          application/json; charset=utf-8:
+            schema:
+                $ref: '#/components/schemas/CreateBill'
+      responses:
+        '201':
+          $ref: "#/components/responses/201CreatedBill"
+        '422':
+          $ref: "#/components/responses/422ValidationError"
+    get:
+      summary: Lista todas as depesas.
+      description: |
+        Lista todas as depesas do usuário logado.
+      tags:
+        - bills
+      responses:
+        '200':
+          $ref: "#/components/responses/200RetrievedBills"
+        '403':
+          description: "Forbidden"
+  /bills/{id}:
+    get:
+      summary: Busca uma despesa.
+      description: |
+        Busca uma despesa pelo seu id.
+      parameters:
+        - in: query
+          name: id
+          description: Id da despesa.
+          required: true
+          example: 10
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          required: true
+          example: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIg
+          schema:
+            type: string
+      tags:
+        - bills
+      responses:
+        '200':
+          $ref: "#/components/responses/201CreatedBill"
+        '404':
+          $ref: "#/components/responses/404NotFound"
+    put:
+      summary: Atualiza despesa.
+      description: |
+        Atualiza despesa dado o id da despesa.
+      parameters:
+        - in: query
+          name: id
+          description: Id da despesa.
+          required: true
+          example: 10
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          required: true
+          example: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIg
+          schema:
+            type: string
+      tags:
+        - bills
+      requestBody:
+        required: true
+        content:
+          application/json; charset=utf-8:
+            schema:
+              type: object
+              properties:
+                webhook:
+                  $ref: '#/components/schemas/CreateBill'
+      responses:
+        '200':
+          description: "updated"
+        '404':
+          $ref: "#/components/responses/404NotFound"
+    delete:
+      summary: Deleta despesa.
+      description: |
+        Deleta despesa dado o id da despesa.
+      parameters:
+        - in: query
+          name: id
+          description: Id da despesa.
+          required: true
+          example: 10
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          required: true
+          example: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIg
+          schema:
+            type: string
+      tags:
+        - bills
+      responses:
+        '200':
+          description: "deleted"
+        '404':
+          $ref: "#/components/responses/404NotFound"
+
+components:
+  schemas:
+    CreateUser:
+      description: |
+        Criar usuário do sistema.
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          description: Nome do usuário.
+          example: "Tester Doe"
+        email:
+          type: string
+          description: Email do usuário.
+          example: "tester.doe@test.com"
+        password:
+          type: string
+          description: Senha de autenticação.
+          example: "12345abc"
+    LoginUser:
+      description: |
+        Autenticar usuário no sistema.
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          description: Email do usuário.
+          example: "tester.doe@test.com"
+        password:
+          type: string
+          description: Senha de autenticação.
+          example: "12345abc"
+    CreatedUser:
+      description: |
+        Usuário criado.
+      type: object
+      properties:
+        status:
+          type: boolean
+          description: Status da ação (criado?).
+          example: true
+        message:
+          type: string
+          description: Mensagem respondida pelo server.
+          example: "User Created Successfully"
+        token:
+          type: string
+          description: Token para se autenticar no app.
+          example: "2|laravel_sanctum_abcdefg"
+    LoggedUser:
+      description: |
+        Usuário logado.
+      type: object
+      properties:
+        status:
+          type: boolean
+          description: Status da ação (logado?).
+          example: true
+        message:
+          type: string
+          description: Mensagem respondida pelo server.
+          example: "User Logged In Successfully"
+        token:
+          type: string
+          description: Token para se autenticar no app.
+          example: "4|TJYiuOoFhrBcMZtinJzBZe2gLEjcWauOknVAX7Ja"
+    CreateBill:
+      description: |
+        Criar despesa do usuário.
+      type: object
+      required:
+        - name
+        - bill_date
+        - description
+        - amount
+      properties:
+        name:
+          type: string
+          description: Nome da despesa.
+          example: "Conta teste"
+        bill_date:
+          type: string
+          description: Data da despesa.
+          example: "2023-08-20"
+        description:
+          type: string
+          description: Descrição da despesa.
+          example: "Despesa criada para teste"
+        amount:
+          type: number
+          description: Valor da despesa.
+          example: 55.33
+    CreatedBill:
+      description: |
+        Despesa do usuário criada.
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id da despesa criada.
+          example: 10
+        user_id:
+          type: integer
+          description: Id do usuário da despesa.
+          example: 2
+        name:
+          type: string
+          description: Nome da despesa.
+          example: "Conta teste"
+        bill_date:
+          type: string
+          description: Data da despesa.
+          example: "2023-08-20"
+        description:
+          type: string
+          description: Descrição da despesa.
+          example: "Despesa criada para teste"
+        amount:
+          type: number
+          description: Valor da despesa.
+          example: 55.33
+    Erro:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Mensagem de erro
+    ErroDetalhado:
+      allOf:
+        - $ref: '#/components/schemas/Erro'
+        - type: object
+          properties:
+            details:
+              type: array
+              items:
+                type: object
+                required:
+                  - field
+                  - description
+                properties:
+                  field:
+                    type: string
+                    example: email
+                  description:
+                    type: string
+                    example: Validation error
+  responses:
+    201CreatedUser:
+      description: Usuário criado.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/CreatedUser'
+    200Logged:
+      description: Usuário logado.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/LoggedUser'
+    201CreatedBill:
+      description: Despesa criada.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/CreatedBill'
+    200RetrievedBills:
+      description: Despesas do Usuário logado.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            type: array
+            items: 
+              $ref: '#/components/schemas/CreatedBill'
+    404NotFound:
+      description: O recurso especificado não foi encontrado.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Erro'
+    422ValidationError:
+      description: Dados inválidos - pode indicar falta de campos requeridos, campos que não cumprem a especificação ou que fazem referência para recursos que não existem mais (apagados).
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ErroDetalhado'
